@@ -30,7 +30,7 @@ GPS-Reading-Record,RECEPTION-TIME,ID
 The RECEPTION-TIME is the 'current-date' formatted as yyMMddHHmmss
 The ID is some GUID you should generate and concat at the end.
 
-The created GPS record is sent via Kafka to the GPS Service to the raw-gps topic.
+The created GPS record is sent via Kafka to the GPS Service to the raw-gps topic via the MessageProducer Verticle.
 
 
 
