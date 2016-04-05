@@ -17,14 +17,15 @@ as-device-manager/build/distributions/as-device-manager-3.1.0.tar.gz
 
 Unzip the file as-device-manager/build/distributions/as-device-manager-3.1.0.tar.gz
 cd to the created folder (as-device-manager-3.1.0)
-Run the following command : 
+Run the following command :
+ 
 ./device-manager.sh
 
 ## What to code
 ----------------
 You should code which create a device-manager code, which get the payload and adds two fields:id and receptionTime. This means that you should get the String and concat two fields to it as follow:
 
-<GPS>,<RECEPTION-TIME>,<ID>
+GPS-Reading-Record,RECEPTION-TIME,ID
 
 The RECEPTION-TIME is the 'current-date' formatted as yyMMddHHmmss
 The ID is some GUID you should generate and concat at the end.
