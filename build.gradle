@@ -1,0 +1,82 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.1.1'
+        classpath 'com.bmuschko:gradle-docker-plugin:2.5'
+    }
+}
+
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+version = '3.1.0'
+
+if (!JavaVersion.current().java8Compatible) {
+    throw new IllegalStateException('''A Haiku:
+                                      |  This needs Java 8,
+                                      |  You are using something else,
+                                      |  Refresh. Try again.'''.stripMargin())
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'http://oss.sonatype.org/content/repositories/snapshots/'
+    }
+}
+docker{
+    url = "http://$dockerHost:2376"
+    //certPath = new File(certUrl)
+}
+
+dependencies {
+    compile "io.vertx:vertx-core:$version"
+    compile "io.vertx:vertx-hazelcast:$version"
+    compile 'com.cyngn.vertx:vertx-kafka:0.3.0'
+    compile "org.slf4j:slf4j-log4j12:1.7.12"
+	compile "org.slf4j:slf4j-api:1.7.12"
+	compile "log4j:log4j:1.2.17"
+}
+
+shadowJar {
+    classifier = 'fat'
+    manifest {
+        attributes 'Main-Class': 'io.vertx.core.Launcher'
+        attributes 'Main-Verticle': 'com.tikal.fleettracker.devicemanager.DeviceManagerVerticle'
+    }
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+}
+
+task zipAll(type: Tar) {
+    extension = 'tar.gz'
+    from '.'
+	baseName = 'as-device-manager'
+    include 'conf/**'
+    include '*.sh'
+    include 'build/libs/*.jar'
+}
+
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn shadowJar
+    quiet = false
+    inputDir = projectDir
+    tag = "$registerBaseName/$dockerBranch/$project.name:$dockerTag"
+}
+task pushImage(type: DockerPushImage) {
+    dependsOn buildImage
+    imageName = "$registerBaseName/$dockerBranch/$project.name"
+    tag="$dockerTag"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.0'
+}

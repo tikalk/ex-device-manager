@@ -1,0 +1,11 @@
+{
+	"http-port" : 4080,
+	"netserver-port" : 4100 ,
+	
+	"producer":{
+		"topic":"as-raw-gps",
+		"metadata.broker.list":"fleet-tracker.tikalknowledge.com:9092",
+		"serializer.class":"kafka.serializer.StringEncoder",
+		"producer.type" : "sync"
+	}
+}
